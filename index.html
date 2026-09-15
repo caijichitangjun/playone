@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="平面塔防">
+<meta name="theme-color" content="#0d1117">
+<meta name="format-detection" content="telephone=no">
+<title>平面塔防</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <header id="topbar">
+    <div class="stats">
+      <div class="stat" id="st-lives" title="生命值"><span class="ico life">♥</span><b>--</b></div>
+      <div class="stat" id="st-gold" title="金币"><span class="ico gold">◈</span><b>--</b></div>
+      <div class="stat" id="st-wave" title="波次"><span class="ico wave">≡</span><b>--</b></div>
+      <div class="stat hide-narrow" id="st-score" title="分数"><span class="ico score">★</span><b>--</b></div>
+    </div>
+    <div class="grow"></div>
+    <div class="actions">
+      <button class="btn primary" id="btn-wave">开始</button>
+      <button class="btn icon" id="btn-speed" title="游戏速度">1×</button>
+      <button class="btn icon" id="btn-sound" title="音效开关">♪</button>
+      <button class="btn icon" id="btn-pause" title="暂停">❚❚</button>
+      <button class="btn icon" id="btn-menu" title="菜单">☰</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <canvas id="game"></canvas>
+    <div id="wave-flag" class="hidden"></div>
+    <section id="tower-panel" class="panel hidden" aria-live="polite"></section>
+  </main>
+
+  <div id="wave-preview" class="hidden"></div>
+
+  <footer id="dock">
+    <div id="tower-list"></div>
+    <button class="btn ghost" id="btn-cancel-build" hidden>取消放置</button>
+  </footer>
+
+  <div id="toasts"></div>
+
+  <div id="dialog" class="overlay hidden">
+    <div class="dialog-card">
+      <h1 id="dlg-title">标题</h1>
+      <div id="dlg-body"></div>
+      <div id="dlg-actions" class="dlg-actions"></div>
+    </div>
+  </div>
+
+  <div id="rotate-hint" class="overlay hidden">
+    <div class="rotate-card">
+      <div class="rotate-icon">▭</div>
+      <p>把手机横过来，视野更宽敞</p>
+      <button class="btn primary" id="btn-rotate-ok">知道了</button>
+    </div>
+  </div>
+
+  <div id="boot" class="overlay">
+    <div class="boot-card">
+      <div class="boot-logo">
+        <span class="tower-mini"></span>
+      </div>
+      <h1>平面塔防</h1>
+      <p class="sub">守住城堡 · 20 张地图格子随便造 · 5 种防御塔 · 3 个关卡</p>
+      <button class="btn primary big" id="btn-boot-start">点击开始</button>
+      <p class="tip">支持触屏与鼠标 · 横竖屏自适应</p>
+    </div>
+  </div>
+
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
