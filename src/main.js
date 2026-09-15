@@ -186,16 +186,20 @@ class App {
 
   openMenu() {
     this.pause();
+    const actions = [
+      { label: '继续游戏', cls: 'primary', fn: () => this.resume() },
+      { label: '重开本关', fn: () => this.restartLevel() },
+      { label: this.save.sound ? '关闭音效' : '打开音效', fn: () => this.toggleSound() },
+      { label: '选择关卡', fn: () => this.openLevelSelect() }
+    ];
+    // 还没装到桌面的话，给一个安装入口（Chrome 不再自动弹安装提示了）
+    const install = this.ui.installAction();
+    if (install) actions.push(install);
     this.ui.showDialog({
       title: '暂停',
       sub: `${this.game ? this.game.def.name : ''} · 第 ${this.game ? Math.min(this.game.waveIndex + 1, this.game.totalWaves) : 1} / ${this.game ? this.game.totalWaves : 1} 波`,
       body: `<div class="muted">游戏已暂停，随时可以回来。</div>`,
-      actions: [
-        { label: '继续游戏', cls: 'primary', fn: () => this.resume() },
-        { label: '重开本关', fn: () => this.restartLevel() },
-        { label: this.save.sound ? '关闭音效' : '打开音效', fn: () => this.toggleSound() },
-        { label: '选择关卡', fn: () => this.openLevelSelect() }
-      ],
+      actions,
       dismissible: true
     });
   }

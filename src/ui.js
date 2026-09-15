@@ -94,8 +94,11 @@ export class UI {
     };
     this._last = {};
     this.panelTower = null;
+    // Android Chrome 早就取消了自动弹安装提示，只能由页面主动调用，所以先接住这个事件备用
+    this.installEvent = null;
     this._buildDock();
     this._wire();
+    this._wireInstall();
   }
 
   // ---------------- 底部塔栏 ----------------
@@ -370,6 +373,69 @@ export class UI {
         game.setTargetMode(this.panelTower, btn.dataset.mode);
       }
     };
+  }
+
+  // ---------------- 安装到桌面 ----------------
+  _wireInstall() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault(); // 拦下来，改成由我们在菜单里主动触发
+      this.installEvent = e;
+    });
+    window.addEventListener('appinstalled', () => {
+      this.installEvent = null;
+      this.toast('已安装到桌面，下次从图标直接进', 'good');
+    });
+  }
+
+  /** 是否已经以「已安装应用」的形式在运行 */
+  get standalone() {
+    return (
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      window.navigator.standalone === true
+    );
+  }
+
+  get isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  /**
+   * 返回一个可放进暂停菜单的动作；已经装好了就返回 null。
+   * Android/Chrome 能直接调起系统安装框；iOS 只能给操作指引（Safari 不提供任何安装 API）。
+   */
+  installAction() {
+    if (this.standalone) return null;
+    if (this.installEvent) {
+      return {
+        label: '安装到桌面',
+        cls: 'primary',
+        fn: async () => {
+          const ev = this.installEvent;
+          this.installEvent = null;
+          try {
+            ev.prompt();
+            await ev.userChoice;
+          } catch {
+            /* 用户取消或浏览器不支持 */
+          }
+        }
+      };
+    }
+    return { label: '怎么装到桌面', fn: () => this.showInstallHelp() };
+  }
+
+  showInstallHelp() {
+    const ios = this.isIOS;
+    const steps = ios
+      ? '用 <b>Safari</b> 打开本页 → 点底部的<b>分享</b>按钮 → 选<b>「添加到主屏幕」</b> → 添加。'
+      : '用 <b>Chrome</b> 打开本页 → 点右上角 <b>⋮</b> 菜单 → 选<b>「安装应用」</b>（若显示「添加到主屏幕」，说明当前浏览器不支持安装，换成 Chrome 再试）。';
+    this.showDialog({
+      title: '安装到桌面',
+      sub: '装好后是全屏运行、有独立图标，而且断网也能玩。',
+      body: `<div class="muted" style="text-align:left;line-height:1.9">${steps}
+        <br>注意：微信、QQ、UC 等内置浏览器不支持安装，请用系统自带的 Safari / Chrome。</div>`,
+      actions: [{ label: '知道了', cls: 'primary', fn: () => this.hideDialog() }]
+    });
   }
 
   // ---------------- 提示 ----------------
