@@ -5,7 +5,7 @@
 import { STEP, MAX_STEPS_PER_FRAME, SPEEDS, TOWER_ORDER } from './config.js';
 import { LEVELS } from './levels.js';
 import { Game, PHASE } from './game.js';
-import { buildStatic, computeView, draw } from './render.js';
+import { buildStatic, computeView, draw, drawIdle } from './render.js';
 import { UI } from './ui.js';
 import { attachInput } from './input.js';
 import { Sound } from './audio.js';
@@ -326,6 +326,9 @@ class App {
         dpr: this.dpr,
         time: this.game.time
       });
+    } else {
+      // 还没进关卡：也要把画布填满，别让玩家对着纯黑发懵
+      drawIdle(this.ctx, this.dpr);
     }
   }
 }

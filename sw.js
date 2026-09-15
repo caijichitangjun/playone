@@ -8,7 +8,7 @@
  *
  * 注意：新增文件时记得加进 SHELL；原生壳（Capacitor）里不会注册本文件。
  */
-const VERSION = 'plane-td-v1';
+const VERSION = 'plane-td-v2';
 const SHELL = [
   './',
   './index.html',

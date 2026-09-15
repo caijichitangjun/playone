@@ -22,6 +22,17 @@ const TARGET_MODES = [
   { key: 'close', label: '最近' }
 ];
 
+/**
+ * 显示一个原本 `display:none` 的元素。
+ * 去掉 hidden 后强制读一次 offsetWidth 触发重排 —— iOS Safari 需要这一下才会真正
+ * 启动 CSS 进场动画，否则动画可能卡在首帧（历史上就会表现为弹窗不显示）。
+ * 与 UI.flag() 里重启动画用的是同一个技巧。
+ */
+function reveal(el) {
+  el.classList.remove('hidden');
+  void el.offsetWidth;
+}
+
 /** 每种塔的小图标（内联 SVG，省去图片资源与额外请求） */
 function towerIconSVG(key) {
   const d = TOWER_DEFS[key];
@@ -299,7 +310,7 @@ export class UI {
     this.panelTower = tower;
     game.selectedTower = tower;
     this.renderPanel(game, tower);
-    this.el.panel.classList.remove('hidden');
+    reveal(this.el.panel);
   }
 
   hidePanel() {
@@ -478,6 +489,7 @@ export class UI {
     }
     this.el.dialog.classList.remove('hidden');
     this.el.dialog.dataset.dismissible = dismissible ? '1' : '';
+    void this.el.dialog.offsetWidth; // iOS：让进场动画真正跑起来
   }
 
   hideDialog() {
@@ -489,7 +501,7 @@ export class UI {
   }
 
   showBoot() {
-    this.el.boot.classList.remove('hidden');
+    reveal(this.el.boot);
   }
 
   hideBoot() {
@@ -593,7 +605,7 @@ export class UI {
 
   // ---------------- 横屏提示 ----------------
   showRotateHint() {
-    this.el.rotate.classList.remove('hidden');
+    reveal(this.el.rotate);
     document.querySelector('#btn-rotate-ok').onclick = () => {
       this.el.rotate.classList.add('hidden');
       this.app.save.rotateHintShown = true;

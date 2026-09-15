@@ -33,12 +33,18 @@ export const PHASE = {
 /** 用来摊开成群敌人，避免完全重叠 */
 const LANE_OFFSETS = [0, -10, 10, -5, 5, -14, 14];
 
+/**
+ * 不传音效时的空实现：必须能响应任意音效方法名，
+ * 否则在 Node 里跑无头平衡测试时会因为 sound.shoot(...) 直接抛 TypeError。
+ */
+const NO_SOUND = new Proxy({}, { get: () => () => {} });
+
 export class Game {
   constructor(levelDef, opts = {}) {
     this.level = buildLevel(levelDef);
     this.def = levelDef;
     this.rng = Math.random;
-    this.sound = opts.sound || { play: () => {} };
+    this.sound = opts.sound || NO_SOUND;
 
     this.enemies = [];
     this.towers = [];

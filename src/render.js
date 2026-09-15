@@ -23,6 +23,59 @@ export function screenToWorld(view, sx, sy) {
   return { x: (sx - view.ox) / view.scale, y: (sy - view.oy) / view.scale };
 }
 
+/**
+ * 待机画面：还没进关卡（或关卡数据异常）时，往画布上画一张静态底图。
+ * 画布是用 alpha:false 创建的，一次都不画就是纯黑一片 —— 一旦 HTML 弹窗因为任何
+ * 原因没显示出来，玩家看到的就是"黑屏、什么都点不了"。所以这里主动把画布填上，
+ * 保证"渲染管线是活的"这件事随时肉眼可见。
+ */
+export function drawIdle(ctx, dpr) {
+  const cw = ctx.canvas.width / dpr;
+  const ch = ctx.canvas.height / dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cw, ch);
+
+  const bg = ctx.createLinearGradient(0, 0, 0, ch);
+  bg.addColorStop(0, '#0b1119');
+  bg.addColorStop(1, '#05070a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, cw, ch);
+
+  // 淡淡的棋盘格，和关卡里的草地呼应
+  const s = Math.max(24, Math.round(Math.min(cw, ch) / 14));
+  ctx.fillStyle = 'rgba(255,255,255,0.014)';
+  for (let y = 0, ry = 0; y < ch; y += s, ry++) {
+    for (let x = 0, rx = 0; x < cw; x += s, rx++) {
+      if ((rx + ry) % 2 === 0) ctx.fillRect(x, y, s, s);
+    }
+  }
+
+  // 居中的塔徽 + 文案，明确告诉玩家"接下来去哪"
+  const cx = cw / 2;
+  const cy = ch / 2;
+  const r = Math.max(18, Math.min(cw, ch) * 0.055);
+  ctx.save();
+  ctx.translate(cx, cy - 10);
+  ctx.strokeStyle = 'rgba(99,214,122,0.45)';
+  ctx.lineWidth = Math.max(2, r * 0.14);
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, TAU);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(99,214,122,0.3)';
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.36, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(230,237,243,0.7)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `600 ${Math.round(r * 0.72)}px system-ui, -apple-system, "PingFang SC", sans-serif`;
+  ctx.fillText('平面塔防', 0, r * 2);
+  ctx.fillStyle = 'rgba(147,161,176,0.8)';
+  ctx.font = `${Math.round(r * 0.62)}px system-ui, -apple-system, "PingFang SC", sans-serif`;
+  ctx.fillText('点右上角「开始」选关', 0, r * 2 + r * 0.9);
+  ctx.restore();
+}
+
 // =====================================================================
 // 静态层
 // =====================================================================
